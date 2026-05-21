@@ -169,6 +169,12 @@ export default function MirrorWindow() {
 
   // Touch/Mouse event handlers
   const handlePointerDown = async (e) => {
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.init();
+      if (audioPlayerRef.current.audioCtx && audioPlayerRef.current.audioCtx.state === 'suspended') {
+        audioPlayerRef.current.audioCtx.resume().catch(console.error);
+      }
+    }
     if (!canvasRef.current || !focusMode) return;
     e.target.setPointerCapture(e.pointerId);
     await sendTouchEvent('DOWN', e);
@@ -470,7 +476,15 @@ export default function MirrorWindow() {
         </div>
       ) : (
         <div className="w-full h-full flex items-center justify-center relative overflow-hidden" 
-             onClick={() => setFocusMode(true)}>
+             onClick={() => {
+               setFocusMode(true);
+               if (audioPlayerRef.current) {
+                 audioPlayerRef.current.init();
+                 if (audioPlayerRef.current.audioCtx && audioPlayerRef.current.audioCtx.state === 'suspended') {
+                   audioPlayerRef.current.audioCtx.resume().catch(console.error);
+                 }
+               }
+             }}>
           <canvas
             ref={canvasRef}
             onPointerDown={handlePointerDown}

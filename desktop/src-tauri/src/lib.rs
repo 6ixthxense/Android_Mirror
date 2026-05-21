@@ -224,9 +224,32 @@ fn start_mirroring(
             println!("[Rust] Audio connection attempt {}/20 to localhost:8081...", attempt);
             match std::net::TcpStream::connect("127.0.0.1:8081") {
                 Ok(s) => {
-                    println!("[Rust] Audio connection established on localhost:8081");
-                    stream = Some(s);
-                    break;
+                    let _ = s.set_read_timeout(Some(std::time::Duration::from_millis(200)));
+                    let mut dummy = [0u8; 1];
+                    match s.peek(&mut dummy) {
+                        Ok(0) => {
+                            println!("[Rust] Audio connection check failed (ADB dummy connect or not ready - EOF). Retrying...");
+                            let _ = s.shutdown(std::net::Shutdown::Both);
+                            std::thread::sleep(std::time::Duration::from_millis(1000));
+                        }
+                        Ok(_) => {
+                            println!("[Rust] Audio connection established on localhost:8081 (data available)");
+                            let _ = s.set_read_timeout(None);
+                            stream = Some(s);
+                            break;
+                        }
+                        Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock || e.kind() == std::io::ErrorKind::TimedOut => {
+                            println!("[Rust] Audio connection established on localhost:8081 (real connection, no data yet)");
+                            let _ = s.set_read_timeout(None);
+                            stream = Some(s);
+                            break;
+                        }
+                        Err(e) => {
+                            println!("[Rust] Audio connection check failed with error: {}. Retrying...", e);
+                            let _ = s.shutdown(std::net::Shutdown::Both);
+                            std::thread::sleep(std::time::Duration::from_millis(1000));
+                        }
+                    }
                 }
                 Err(e) => {
                     if attempt == 20 {

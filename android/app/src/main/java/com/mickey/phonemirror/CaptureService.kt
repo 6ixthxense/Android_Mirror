@@ -399,8 +399,11 @@ class CaptureService : Service() {
 
                     audioClientSocket = socket
                     runAudioLoop()
-                    Log.e(TAG, "Audio loop finished.")
-                    break
+                    Log.e(TAG, "Audio loop finished. Cleaning up socket...")
+                    try {
+                        audioClientSocket?.close()
+                    } catch (e: Exception) {}
+                    audioClientSocket = null
                 } catch (e: IOException) {
                     Log.e(TAG, "Audio Socket error: ${e.message}")
                     break
