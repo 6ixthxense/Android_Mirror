@@ -1,0 +1,3 @@
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld"
+# Also pass lld-link arguments if needed, but "rust-lld" alone is usually enough.

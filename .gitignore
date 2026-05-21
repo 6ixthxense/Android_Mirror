@@ -1,0 +1,27 @@
+# Dependencies and Tooling Binaries
+/bin/
+
+# Node/Vite build output & dependencies
+/desktop/node_modules/
+/desktop/dist/
+/desktop/dist-ssr/
+/desktop/src-tauri/target/
+
+# Android build output & dependencies
+/android/.gradle/
+/android/app/build/
+/android/local.properties
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
