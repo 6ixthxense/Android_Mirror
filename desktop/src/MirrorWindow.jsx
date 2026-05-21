@@ -61,7 +61,6 @@ class PcmPlayer {
     source.connect(this.audioCtx.destination);
 
     let playTime = this.nextStartTime;
-    const currentTime = this.audioCtx.currentTime;
     
     if (playTime < currentTime) {
       playTime = currentTime + 0.02; // 20ms queue offset for jitter smoothing
