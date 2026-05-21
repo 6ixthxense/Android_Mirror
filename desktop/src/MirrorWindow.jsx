@@ -25,6 +25,16 @@ class PcmPlayer {
       this.audioCtx.resume();
     }
 
+    const currentTime = this.audioCtx.currentTime;
+    const currentDelay = this.nextStartTime - currentTime;
+
+    // Live drift correction: If scheduled queue grows beyond 100ms, resync to target 20ms.
+    // This prevents audio delay from accumulating over time due to sample rate drift or network bursts.
+    if (currentDelay > 0.100) {
+      this.nextStartTime = currentTime + 0.020;
+      return; // Drop this chunk to catch up
+    }
+
     const sampleCount = bytes.length / 2; // each sample is 16-bit (2 bytes)
     const channelSampleCount = sampleCount / 2; // stereo: 2 channels
     if (channelSampleCount <= 0) return;
